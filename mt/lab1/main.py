@@ -39,6 +39,54 @@ def getR(image1, image2):
 
     return corr
 
+def cadr(value):
+    if value < 0:
+        return 0
+    elif value > 255:
+        return 255
+    return value
+
+def calculateEntropy(arrayValues, width, height, label):
+    valueToAmount = {}
+    for i in arrayValues:
+        temp = valueToAmount.get(i)
+        valueToAmount[i] = 1 if temp == None else valueToAmount[i] + 1
+    totalAmount = width * height
+    entropy = 0
+    for key in valueToAmount.keys():
+        px = valueToAmount[key] / totalAmount
+        entropy = entropy - px * math.log2(px)
+    print(label, entropy)
+
+def createBarChart(componentArray, label):
+    fig = plt.figure()
+    plt.title(label)
+    plt.hist(componentArray, bins=255, range=(0,255))
+    plt.show()
+
+def calculateDifferenceModulation(componentArray, width, height, cmplabel):
+    diffModulation1 = []
+    diffModulation2 = []
+    diffModulation3 = []
+    diffModulation4 = []
+    for i in range(1, height):
+        for j in range(1, width):
+            diffModulation1.append(componentArray[i * width + j] - componentArray[i * width + j - 1])
+            diffModulation2.append(componentArray[i * width + j] - componentArray[(i - 1) * width + j])
+            diffModulation3.append(componentArray[i * width + j] - componentArray[(i - 1) * width + j - 1])
+            average = (componentArray[i * width + j - 1] + componentArray[(i - 1) * width + j] + componentArray[(i - 1) * width + j - 1]) / 3
+            diffModulation4.append(imageB[i * width + j] - average)
+
+    createBarChart(diffModulation1, "diff " + cmplabel + " frequency 1")
+    createBarChart(diffModulation2, "diff " + cmplabel + " frequency 2")
+    createBarChart(diffModulation3, "diff " + cmplabel + " frequency 3")
+    createBarChart(diffModulation4, "diff " + cmplabel + " frequency 4")
+
+    calculateEntropy(diffModulation1, width, height, 'H(d' + cmplabel + '^1) = ')
+    calculateEntropy(diffModulation2, width, height, 'H(d' + cmplabel + '^2) = ')
+    calculateEntropy(diffModulation3, width, height, 'H(d' + cmplabel + '^3) = ')
+    calculateEntropy(diffModulation4, width, height, 'H(d' + cmplabel + '^4) = ')
+
 print('r(red, green) = ', getR(imageR, imageG))
 print('r(red, blue) = ', getR(imageR, imageB))
 print('r(blue, green) = ', getR(imageB, imageG))
@@ -164,3 +212,184 @@ plt.hist(imageB, bins=255)
 plt.show()
 
 print(max(cbArray))
+
+print('--------------------------------------------')
+h_downsampled, w_downsampled = height//2, width//2
+print('Before:')
+print('height: ', height)
+print('width: ', width)
+print('After:')
+print('height: ', h_downsampled)
+print('width: ', w_downsampled)
+
+Cb_downsampled = []
+Cr_downsampled = []
+for i in range(0, height, 2):
+    for j in range(0, width, 2):
+        Cb_downsampled.append((cbArray[i * width + j] + cbArray[(i + 1) * width + j] + cbArray[i * width + j + 1] + cbArray[(i + 1) * width + j + 1]) // 4)
+        Cr_downsampled.append((crArray[i * width + j] + crArray[(i + 1) * width + j] + crArray[i * width + j + 1] + crArray[(i + 1) * width + j + 1]) // 4)
+
+Cb_restored = [[0 for j in range(width)] for i in range(height)]
+Cr_restored = [[0 for j in range(width)] for i in range(height)]
+
+
+for i in range(h_downsampled):
+    for j in range(w_downsampled):
+        i_new = i * 2
+        j_new = j * 2
+
+        Cb_restored[i_new][j_new] = Cb_downsampled[i * w_downsampled + j]
+        Cr_restored[i_new][j_new] = Cr_downsampled[i * w_downsampled + j]
+        if j_new > 0:
+            Cb_restored[i_new][j_new-1] = Cb_downsampled[i * w_downsampled + j]
+            Cr_restored[i_new][j_new-1] = Cr_downsampled[i * w_downsampled + j]
+        if i_new > 0:
+            Cb_restored[i_new-1][j_new] = Cb_downsampled[i * w_downsampled + j]
+            Cr_restored[i_new-1][j_new] = Cr_downsampled[i * w_downsampled + j]
+        if i_new > 0 and j_new > 0:
+            Cb_restored[i_new-1][j_new-1] = Cb_downsampled[i * w_downsampled + j]
+            Cr_restored[i_new-1][j_new-1] = Cr_downsampled[i * w_downsampled + j]
+
+yFile = bytearray(fullImage[:pixel_offset])
+sumR = 0
+sumG = 0
+sumB = 0 
+sumCr = 0
+sumCb = 0
+for i in range(height):
+    for j in range(width):
+        g = cadr(yArray[i * width + j] - 0.714 * (Cr_restored[i][j] - 128) - 0.334 * (Cb_restored[i][j] - 128))
+        r = cadr(yArray[i * width + j] + 1.402 * (Cr_restored[i][j] - 128))
+        b = cadr(yArray[i * width + j] + 1.772 * (Cb_restored[i][j] - 128))
+        sumR = sumR + (imageR[i] - r) ** 2
+        sumG = sumG + (imageG[i] - g) ** 2
+        sumB = sumB + (imageB[i] - b) ** 2
+        sumCr = sumCr + (Cr_restored[i][j] - crArray[i * width + j]) ** 2
+        sumCb = sumCb + (Cb_restored[i][j] - cbArray[i * width + j]) ** 2 
+        yFile.append(int(b))
+        yFile.append(int(g))
+        yFile.append(int(r))
+print('PSNR( Blue ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumB))
+print('PSNR( Green ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumG))
+print('PSNR( Red ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumR))
+print('PSNR( Cb ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumCb))
+print('PSNR( Cr ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumCr))
+imageFile = open('afterYCbCr_restored.bmp', 'wb')
+imageFile.write(bytes(yFile)) 
+imageFile.close()
+
+print('--------------------------------------------')
+h_downsampled, w_downsampled = height//2, width//2
+print('Before:')
+print('height: ', height)
+print('width: ', width)
+print('After:')
+print('height: ', h_downsampled)
+print('width: ', w_downsampled)
+
+
+Cb_downsampled = []
+Cr_downsampled = []
+for i in range(0, height, 2):
+    for j in range(0, width, 2):
+        Cb_downsampled.append((cbArray[i * width + j] + cbArray[(i + 1) * width + j] + cbArray[i * width + j + 1] + cbArray[(i + 1) * width + j + 1]) // 4)
+        Cr_downsampled.append((crArray[i * width + j] + crArray[(i + 1) * width + j] + crArray[i * width + j + 1] + crArray[(i + 1) * width + j + 1]) // 4)
+
+h_downsampled2, w_downsampled2 = h_downsampled//2, w_downsampled//2
+print('After 2:')
+print('height: ', h_downsampled2)
+print('width: ', w_downsampled2)
+
+Cb_downsampled = []
+Cr_downsampled = []
+for i in range(0, height, 2):
+    for j in range(0, width, 2):
+        Cb_downsampled.append((cbArray[i * w_downsampled + j] + cbArray[(i + 1) * w_downsampled + j] + cbArray[i * w_downsampled + j + 1] + cbArray[(i + 1) * w_downsampled + j + 1]) // 4)
+        Cr_downsampled.append((crArray[i * w_downsampled + j] + crArray[(i + 1) * w_downsampled + j] + crArray[i * w_downsampled + j + 1] + crArray[(i + 1) * w_downsampled + j + 1]) // 4)
+
+Cb_restored = [[0 for j in range(w_downsampled)] for i in range(h_downsampled)]
+Cr_restored = [[0 for j in range(w_downsampled)] for i in range(h_downsampled)]
+
+for i in range(h_downsampled2):
+    for j in range(w_downsampled2):
+        i_new = i * 2
+        j_new = j * 2
+
+        Cb_restored[i_new][j_new] = Cb_downsampled[i * w_downsampled2 + j]
+        Cr_restored[i_new][j_new] = Cr_downsampled[i * w_downsampled2 + j]
+        if j_new > 0:
+            Cb_restored[i_new][j_new-1] = Cb_downsampled[i * w_downsampled2 + j]
+            Cr_restored[i_new][j_new-1] = Cr_downsampled[i * w_downsampled2 + j]
+        if i_new > 0:
+            Cb_restored[i_new-1][j_new] = Cb_downsampled[i * w_downsampled2 + j]
+            Cr_restored[i_new-1][j_new] = Cr_downsampled[i * w_downsampled2 + j]
+        if i_new > 0 and j_new > 0:
+            Cb_restored[i_new-1][j_new-1] = Cb_downsampled[i * w_downsampled2 + j]
+            Cr_restored[i_new-1][j_new-1] = Cr_downsampled[i * w_downsampled2 + j]
+
+Cb_restored2 = [[0 for j in range(width)] for i in range(height)]
+Cr_restored2 = [[0 for j in range(width)] for i in range(height)]
+
+for i in range(h_downsampled):
+    for j in range(w_downsampled):
+        
+        i_new = i * 2
+        j_new = j * 2
+
+
+        Cb_restored2[i_new][j_new] = Cb_restored[i][j]
+        Cr_restored2[i_new][j_new] = Cr_restored[i][j]
+        
+        if j_new > 0:
+            Cb_restored2[i_new][j_new-1] = Cb_restored[i][j]
+            Cr_restored2[i_new][j_new-1] = Cr_restored[i][j]
+        if i_new > 0:
+            Cb_restored2[i_new-1][j_new] = Cb_restored[i][j]
+            Cr_restored2[i_new-1][j_new] = Cr_restored[i][j]
+        if i_new > 0 and j_new > 0:
+            Cb_restored2[i_new-1][j_new-1] = Cb_restored[i][j]
+            Cr_restored2[i_new-1][j_new-1] = Cr_restored[i][j]
+
+yFile = bytearray(fullImage[:pixel_offset])
+sumR = 0
+sumG = 0
+sumB = 0 
+sumCr = 0
+sumCb = 0
+for i in range(height):
+    for j in range(width):
+        g = cadr(yArray[i * width + j] - 0.714 * (Cr_restored2[i][j] - 128) - 0.334 * (Cb_restored2[i][j] - 128))
+        r = cadr(yArray[i * width + j] + 1.402 * (Cr_restored2[i][j] - 128))
+        b = cadr(yArray[i * width + j] + 1.772 * (Cb_restored2[i][j] - 128))
+        sumR = sumR + (imageR[i] - r) ** 2
+        sumG = sumG + (imageG[i] - g) ** 2
+        sumB = sumB + (imageB[i] - b) ** 2
+        sumCr = sumCr + (Cr_restored2[i][j] - crArray[i * width + j]) ** 2
+        sumCb = sumCb + (Cb_restored2[i][j] - cbArray[i * width + j]) ** 2 
+        yFile.append(int(b))
+        yFile.append(int(g))
+        yFile.append(int(r))
+print('PSNR( Blue ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumB))
+print('PSNR( Green ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumG))
+print('PSNR( Red ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumR))
+print('PSNR( Cb ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumCb))
+print('PSNR( Cr ) = ', 10 * math.log10((width  * height * (255 ** 2)) / sumCr))
+imageFile = open('afterYCbCr_restored_x2.bmp', 'wb')
+imageFile.write(bytes(yFile)) 
+imageFile.close()
+
+print('--------------------------------------------')
+calculateEntropy(imageB, width, height, 'H(B) = ')
+calculateEntropy(imageG, width, height, 'H(G) = ')
+calculateEntropy(imageR, width, height, 'H(R) = ')
+calculateEntropy(yArray, width, height, 'H(Y) = ')
+calculateEntropy(cbArray, width, height, 'H(Cb) = ')
+calculateEntropy(crArray, width, height, 'H(Cr) = ')
+
+print('--------------------------------------------')
+calculateDifferenceModulation(imageB, width, height, 'B')
+calculateDifferenceModulation(imageG, width, height, 'G')
+calculateDifferenceModulation(imageR, width, height, 'R')
+calculateDifferenceModulation(yArray, width, height, 'Y')
+calculateDifferenceModulation(cbArray, width, height, 'Cb')
+calculateDifferenceModulation(crArray, width, height, 'Cr')
