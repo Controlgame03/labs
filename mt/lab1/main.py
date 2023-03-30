@@ -358,6 +358,7 @@ def solveCadrs(arr, cadrIndexes, height, width):
         matrixList = []
         yFile = fullImage[:pixel_offset]
         for i in range(0, height, 2):
+            # Create two loops because I don't want to figure out with bytearrays. It works but I keep image size the same when save it.
             for j in range(0, width, 2):
                 if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
                     i_new = i + cadrIndex[0]
@@ -377,7 +378,7 @@ def solveCadrs(arr, cadrIndexes, height, width):
         imageFile.write(bytes(yFile))
         imageFile.close()
         calculateEntropy(matrixList, labelEntropy)
-        # createBarChart(matrixList, label, (0,255))
+        createBarChart(matrixList, label, (0,255))
 
 cadrIndexes = [
     [0,0],[0,1],[1,0],[1,1]
