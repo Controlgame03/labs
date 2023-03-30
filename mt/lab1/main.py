@@ -16,7 +16,7 @@ def saveInFileAndGetComponents(image, filename, position, startPos, width, heigh
 
     return storeImage
 
-with open('kodim02.bmp', 'rb') as f:
+with open('mt\lab1\kodim02.bmp', 'rb') as f:
     header = f.read(54)
     pixel_offset = int.from_bytes(header[10:14], byteorder='little')
     width = int.from_bytes(header[18:22], byteorder='little')
@@ -356,15 +356,28 @@ print('--------------------------------------------')
 def solveCadrs(arr, cadrIndexes, height, width):
     for cadrIndex in cadrIndexes:
         matrixList = []
+        yFile = fullImage[:pixel_offset]
         for i in range(0, height, 2):
             for j in range(0, width, 2):
                 if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
                     i_new = i + cadrIndex[0]
                     j_new = j + cadrIndex[1]
                     matrixList.append(arr[width * i_new + j_new])
-        label = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ') = '
-        calculateEntropy(matrixList, label)
-        createBarChart(matrixList, label, (0,255))
+                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
+                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
+            for j in range(0, width, 2):
+                if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
+                    i_new = i + cadrIndex[0]
+                    j_new = j + cadrIndex[1]
+                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
+                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
+        labelEntropy = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ') = '
+        label = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ')'
+        imageFile = open(label + '.bmp', 'wb')
+        imageFile.write(bytes(yFile))
+        imageFile.close()
+        calculateEntropy(matrixList, labelEntropy)
+        # createBarChart(matrixList, label, (0,255))
 
 cadrIndexes = [
     [0,0],[0,1],[1,0],[1,1]
