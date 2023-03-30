@@ -46,7 +46,7 @@ def cadr(value):
         return 255
     return value
 
-def calculateEntropy(arrayValues, width, height, label):
+def calculateEntropy(arrayValues, label):
     valueToAmount = {}
     for i in arrayValues:
         value = int(i)
@@ -85,10 +85,10 @@ def calculateDifferenceModulation(componentArray, width, height, cmplabel):
     # createBarChart(diffModulation3, "diff " + cmplabel + " frequency 3", (-127, 128))
     # createBarChart(diffModulation4, "diff " + cmplabel + " frequency 4", (-127, 128))
 
-    calculateEntropy(diffModulation1, width, height, 'H(d' + cmplabel + '^1) = ')
-    calculateEntropy(diffModulation2, width, height, 'H(d' + cmplabel + '^2) = ')
-    calculateEntropy(diffModulation3, width, height, 'H(d' + cmplabel + '^3) = ')
-    calculateEntropy(diffModulation4, width, height, 'H(d' + cmplabel + '^4) = ')
+    calculateEntropy(diffModulation1, 'H(d' + cmplabel + '^1) = ')
+    calculateEntropy(diffModulation2, 'H(d' + cmplabel + '^2) = ')
+    calculateEntropy(diffModulation3, 'H(d' + cmplabel + '^3) = ')
+    calculateEntropy(diffModulation4, 'H(d' + cmplabel + '^4) = ')
 def splitIntoSubframes(array, i_count, j_count):
     h_downsampled, w_downsampled = height // 2, width // 2
     A_downsampled = []
@@ -337,12 +337,12 @@ imageFile.write(bytes(yFile))
 imageFile.close()
 
 print('--------------------------------------------')
-calculateEntropy(imageB, width, height, 'H(B) = ')
-calculateEntropy(imageG, width, height, 'H(G) = ')
-calculateEntropy(imageR, width, height, 'H(R) = ')
-calculateEntropy(yArray, width, height, 'H(Y) = ')
-calculateEntropy(cbArray, width, height, 'H(Cb) = ')
-calculateEntropy(crArray, width, height, 'H(Cr) = ')
+calculateEntropy(imageB, 'H(B) = ')
+calculateEntropy(imageG, 'H(G) = ')
+calculateEntropy(imageR, 'H(R) = ')
+calculateEntropy(yArray, 'H(Y) = ')
+calculateEntropy(cbArray, 'H(Cb) = ')
+calculateEntropy(crArray, 'H(Cr) = ')
 
 print('--------------------------------------------')
 calculateDifferenceModulation(imageB, width, height, 'B')
@@ -352,6 +352,24 @@ calculateDifferenceModulation(yArray, width, height, 'Y')
 calculateDifferenceModulation(cbArray, width, height, 'Cb')
 calculateDifferenceModulation(crArray, width, height, 'Cr')
 
+print('--------------------------------------------')
+def solveCadrs(arr, cadrIndexes, height, width):
+    for cadrIndex in cadrIndexes:
+        matrixList = []
+        for i in range(0, height, 2):
+            for j in range(0, width, 2):
+                if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
+                    i_new = i + cadrIndex[0]
+                    j_new = j + cadrIndex[1]
+                    matrixList.append(arr[width * i_new + j_new])
+        label = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ') = '
+        calculateEntropy(matrixList, label)
+        createBarChart(matrixList, label, (0,255))
+
+cadrIndexes = [
+    [0,0],[0,1],[1,0],[1,1]
+]
+solveCadrs(yArray, cadrIndexes, height, width)
 # yArray1 = splitIntoSubframes(yArray, 0, 0)
 # yFile = createSubframes(yArray1)
 # imageFile = open('y_version1.bmp', 'wb')
