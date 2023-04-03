@@ -354,23 +354,19 @@ calculateDifferenceModulation(crArray, width, height, 'Cr')
 
 print('--------------------------------------------')
 def solveCadrs(arr, cadrIndexes, height, width):
+    height_temp  = height // 2 
+    width_temp = width // 2
     for cadrIndex in cadrIndexes:
         matrixList = []
         yFile = fullImage[:pixel_offset]
+        yFile[18:22] = width_temp.to_bytes(4, 'little')
+        yFile[22:26] = height_temp.to_bytes(4, 'little')
         for i in range(0, height, 2):
-            # Create two loops because I don't want to figure out with bytearrays. It works but I keep image size the same when save it.
             for j in range(0, width, 2):
                 if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
                     i_new = i + cadrIndex[0]
                     j_new = j + cadrIndex[1]
                     matrixList.append(arr[width * i_new + j_new])
-                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
-                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
-            for j in range(0, width, 2):
-                if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
-                    i_new = i + cadrIndex[0]
-                    j_new = j + cadrIndex[1]
-                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
                     yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
         labelEntropy = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ') = '
         label = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ')'
@@ -384,26 +380,3 @@ cadrIndexes = [
     [0,0],[0,1],[1,0],[1,1]
 ]
 solveCadrs(yArray, cadrIndexes, height, width)
-# yArray1 = splitIntoSubframes(yArray, 0, 0)
-# yFile = createSubframes(yArray1)
-# imageFile = open('y_version1.bmp', 'wb')
-# imageFile.write(bytes(yFile))
-# imageFile.close()
-
-# yArray2 = splitIntoSubframes(yArray, 0, 1)
-# yFile = createSubframes(yArray2)
-# imageFile = open('y_version2.bmp', 'wb')
-# imageFile.write(bytes(yFile))
-# imageFile.close()
-
-# yArray3 = splitIntoSubframes(yArray, 1, 0)
-# yFile = createSubframes(yArray3)
-# imageFile = open('y_version3.bmp', 'wb')
-# imageFile.write(bytes(yFile))
-# imageFile.close()
-
-# yArray4 = splitIntoSubframes(yArray, 1, 1)
-# yFile = createSubframes(yArray4)
-# imageFile = open('y_version4.bmp', 'wb')
-# imageFile.write(bytes(yFile))
-# imageFile.close()
