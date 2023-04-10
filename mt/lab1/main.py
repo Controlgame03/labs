@@ -16,7 +16,11 @@ def saveInFileAndGetComponents(image, filename, position, startPos, width, heigh
 
     return storeImage
 
+<<<<<<< HEAD
+with open('kodim15.bmp', 'rb') as f:
+=======
 with open('mt\lab1\kodim02.bmp', 'rb') as f:
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
     header = f.read(54)
     pixel_offset = int.from_bytes(header[10:14], byteorder='little')
     width = int.from_bytes(header[18:22], byteorder='little')
@@ -64,7 +68,11 @@ def calculateEntropy(arrayValues, label):
 def createBarChart(componentArray, label, rangeValues):
     fig = plt.figure()
     plt.title(label)
+<<<<<<< HEAD
+    plt.hist(componentArray, bins=255, range=(-125,125))
+=======
     plt.hist(componentArray, bins=255, range=rangeValues)
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
     plt.show()
 
 def calculateDifferenceModulation(componentArray, width, height, cmplabel):
@@ -292,12 +300,21 @@ imageB = [round(imageB[i]) for i in range(len(imageB))]
 imageB = np.array(imageB)
 
 
+<<<<<<< HEAD
+createBarChart(yArray, "y frequency")
+createBarChart(cbArray, "cb frequency")
+createBarChart(crArray, "cr frequency")
+createBarChart(imageR, "red frequency")
+createBarChart(imageG, "green frequency")
+createBarChart(imageB, "blue frequency")
+=======
 # createBarChart(yArray, "y frequency", (0, 255))
 # createBarChart(cbArray, "cb frequency", (0, 255))
 # createBarChart(crArray, "cr frequency", (0, 255))
 # createBarChart(imageR, "red frequency", (0, 255))
 # createBarChart(imageG, "green frequency", (0, 255))
 # createBarChart(imageB, "blue frequency", (0, 255))
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
 
 Cb_restored = decimationEvenNumbered(cbArray)
 Cr_restored = decimationEvenNumbered(crArray)
@@ -352,6 +369,31 @@ calculateDifferenceModulation(yArray, width, height, 'Y')
 calculateDifferenceModulation(cbArray, width, height, 'Cb')
 calculateDifferenceModulation(crArray, width, height, 'Cr')
 
+<<<<<<< HEAD
+yArray1 = splitIntoSubframes(yArray, 0, 0)
+yFile = createSubframes(yArray1)
+imageFile = open('y_version1.bmp', 'wb')
+imageFile.write(bytes(yFile))
+imageFile.close()
+
+yArray2 = splitIntoSubframes(yArray, 0, 1)
+yFile = createSubframes(yArray2)
+imageFile = open('y_version2.bmp', 'wb')
+imageFile.write(bytes(yFile))
+imageFile.close()
+
+yArray3 = splitIntoSubframes(yArray, 1, 0)
+yFile = createSubframes(yArray3)
+imageFile = open('y_version3.bmp', 'wb')
+imageFile.write(bytes(yFile))
+imageFile.close()
+
+yArray4 = splitIntoSubframes(yArray, 1, 1)
+yFile = createSubframes(yArray4)
+imageFile = open('y_version4.bmp', 'wb')
+imageFile.write(bytes(yFile))
+imageFile.close()
+=======
 print('--------------------------------------------')
 def solveCadrs(arr, cadrIndexes, height, width):
     height_temp  = height // 2 
@@ -380,3 +422,4 @@ cadrIndexes = [
     [0,0],[0,1],[1,0],[1,1]
 ]
 solveCadrs(yArray, cadrIndexes, height, width)
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
