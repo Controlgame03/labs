@@ -16,7 +16,11 @@ def saveInFileAndGetComponents(image, filename, position, startPos, width, heigh
 
     return storeImage
 
+<<<<<<< HEAD
 with open('kodim15.bmp', 'rb') as f:
+=======
+with open('mt\lab1\kodim02.bmp', 'rb') as f:
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
     header = f.read(54)
     pixel_offset = int.from_bytes(header[10:14], byteorder='little')
     width = int.from_bytes(header[18:22], byteorder='little')
@@ -46,22 +50,29 @@ def cadr(value):
         return 255
     return value
 
-def calculateEntropy(arrayValues, width, height, label):
+def calculateEntropy(arrayValues, label):
     valueToAmount = {}
     for i in arrayValues:
-        temp = valueToAmount.get(i)
-        valueToAmount[i] = 1 if temp == None else valueToAmount[i] + 1
-    totalAmount = width * height
+        value = int(i)
+        temp = valueToAmount.get(value)
+        valueToAmount[value] = 1 if temp == None else valueToAmount[value] + 1
     entropy = 0
+    all = 0
     for key in valueToAmount.keys():
-        px = valueToAmount[key] / totalAmount
+        all += valueToAmount[key]
+    for key in valueToAmount.keys():
+        px = valueToAmount[key] / all
         entropy = entropy - px * math.log2(px)
     print(label, entropy)
 
-def createBarChart(componentArray, label):
+def createBarChart(componentArray, label, rangeValues):
     fig = plt.figure()
     plt.title(label)
+<<<<<<< HEAD
     plt.hist(componentArray, bins=255, range=(-125,125))
+=======
+    plt.hist(componentArray, bins=255, range=rangeValues)
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
     plt.show()
 
 def calculateDifferenceModulation(componentArray, width, height, cmplabel):
@@ -73,19 +84,19 @@ def calculateDifferenceModulation(componentArray, width, height, cmplabel):
         for j in range(1, width):
             diffModulation1.append(componentArray[i * width + j] - componentArray[i * width + j - 1])
             diffModulation2.append(componentArray[i * width + j] - componentArray[(i - 1) * width + j])
-            diffModulation3.append(componentArray[i * width + j] - componentArray[(i - 1) * width + j - 1])
+            diffModulation3.append(componentArray[i * width + j] - componentArray[(i - 1) * width + j - 1])          
             average = (componentArray[i * width + j - 1] + componentArray[(i - 1) * width + j] + componentArray[(i - 1) * width + j - 1]) / 3
-            diffModulation4.append(imageB[i * width + j] - average)
+            diffModulation4.append(componentArray[i * width + j] - average)
 
-    createBarChart(diffModulation1, "diff " + cmplabel + " frequency 1")
-    createBarChart(diffModulation2, "diff " + cmplabel + " frequency 2")
-    createBarChart(diffModulation3, "diff " + cmplabel + " frequency 3")
-    createBarChart(diffModulation4, "diff " + cmplabel + " frequency 4")
+    # createBarChart(diffModulation1, "diff " + cmplabel + " frequency 1", (-127, 128))
+    # createBarChart(diffModulation2, "diff " + cmplabel + " frequency 2", (-127, 128))
+    # createBarChart(diffModulation3, "diff " + cmplabel + " frequency 3", (-127, 128))
+    # createBarChart(diffModulation4, "diff " + cmplabel + " frequency 4", (-127, 128))
 
-    calculateEntropy(diffModulation1, width, height, 'H(d' + cmplabel + '^1) = ')
-    calculateEntropy(diffModulation2, width, height, 'H(d' + cmplabel + '^2) = ')
-    calculateEntropy(diffModulation3, width, height, 'H(d' + cmplabel + '^3) = ')
-    calculateEntropy(diffModulation4, width, height, 'H(d' + cmplabel + '^4) = ')
+    calculateEntropy(diffModulation1, 'H(d' + cmplabel + '^1) = ')
+    calculateEntropy(diffModulation2, 'H(d' + cmplabel + '^2) = ')
+    calculateEntropy(diffModulation3, 'H(d' + cmplabel + '^3) = ')
+    calculateEntropy(diffModulation4, 'H(d' + cmplabel + '^4) = ')
 def splitIntoSubframes(array, i_count, j_count):
     h_downsampled, w_downsampled = height // 2, width // 2
     A_downsampled = []
@@ -196,11 +207,11 @@ def convertForDecimation(yArray, Cr_restored, Cb_restored, label):
             g = cadr(yArray[i * width + j] - 0.714 * (Cr_restored[i][j] - 128) - 0.334 * (Cb_restored[i][j] - 128))
             r = cadr(yArray[i * width + j] + 1.402 * (Cr_restored[i][j] - 128))
             b = cadr(yArray[i * width + j] + 1.772 * (Cb_restored[i][j] - 128))
-            sumR = sumR + (imageR[i] - r) ** 2
-            sumG = sumG + (imageG[i] - g) ** 2
-            sumB = sumB + (imageB[i] - b) ** 2
-            sumCr = sumCr + (Cr_restored[i][j] - crArray[i * width + j]) ** 2
-            sumCb = sumCb + (Cb_restored[i][j] - cbArray[i * width + j]) ** 2
+            sumR = sumR + (imageR[i * width + j] - int(r)) ** 2
+            sumG = sumG + (imageG[i * width + j] - int(g)) ** 2
+            sumB = sumB + (imageB[i * width + j] - int(b)) ** 2
+            sumCr = sumCr + (int(Cr_restored[i][j]) - int(crArray[i * width + j])) ** 2
+            sumCb = sumCb + (int(Cb_restored[i][j]) - int(cbArray[i * width + j])) ** 2
             yFile.append(int(b))
             yFile.append(int(g))
             yFile.append(int(r))
@@ -220,10 +231,6 @@ yFile = bytearray(fullImage[:pixel_offset])
 cbFile = bytearray(fullImage[:pixel_offset])
 crFile = bytearray(fullImage[:pixel_offset])
 
-meanY = 0
-meanCb = 0
-meanCr = 0
-
 yArray = []
 cbArray = []
 crArray = []
@@ -234,28 +241,15 @@ for i in range(pixel_offset, len(fullImage), 3):
     yArray.append(y)
     cbArray.append(cb)
     crArray.append(cr)
-    meanY = meanY + y
-    meanCb = meanCb + cb
-    meanCr = meanCr + cr
+
     yFile.extend(bytearray([int(y),int(y),int(y)]))
     crFile.extend(bytearray([int(cr),int(cr),int(cr)]))
     cbFile.extend(bytearray([int(cb),int(cb),int(cb)]))
 
-meanY = meanY / (width * height)
-meanCb = meanCb / (width * height)
-meanCr = meanCr / (width * height)
-
-stdY = math.sqrt(sum([(yArray[i] - meanY) ** 2 for i in range(0, len(yArray))]) / (width * height - 1))
-stdCb = math.sqrt(sum([(cbArray[i] - meanCb) ** 2 for i in range(0, len(cbArray))]) / (width * height - 1))
-stdCr = math.sqrt(sum([(crArray[i] - meanCr) ** 2 for i in range(0, len(crArray))]) / (width * height - 1))
-
-covY_Cb = sum([(yArray[i] - meanY) * (crArray[i] - meanCr) for i in range(0, len(yArray))]) / (width * height)
-covY_Cr = sum([(yArray[i] - meanY) * (cbArray[i] - meanCb) for i in range(0, len(yArray))]) / (width * height)
-covCb_Cr = sum([(cbArray[i] - meanCb) * (crArray[i] - meanCr) for i in range(0, len(yArray))]) / (width * height)
 print('--------------------------------------------')
-print('r(y, Cb) = ', covY_Cb / (stdY * stdCb))
-print('r(y, Cr) = ', covY_Cr / (stdY * stdCr))
-print('r(Cb, Cr) = ', covCb_Cr / (stdCr * stdCb))
+print('R(y, Cb) = ', getR(yArray, cbArray))
+print('R(y, Cr) = ', getR(yArray, crArray))
+print('R(Cb, Cr) = ', getR(cbArray, crArray))
 
 imageFile = open('y.bmp', 'wb')
 imageFile.write(bytes(yFile))
@@ -273,14 +267,14 @@ print('--------------------------------------------')
 yFile = bytearray(fullImage[:pixel_offset])
 sumR = 0
 sumG = 0
-sumB = 0
+sumB = 0 
 for i in range(len(yArray)):
-    g = yArray[i] - 0.714 * (crArray[i] - 128) - 0.334 * (cbArray[i] - 128)
-    r = yArray[i] + 1.402 * (crArray[i] - 128)
-    b = yArray[i] + 1.772 * (cbArray[i] - 128)
-    sumR = sumR + (imageR[i] - r) ** 2
-    sumG = sumG + (imageG[i] - g) ** 2
-    sumB = sumB + (imageB[i] - b) ** 2
+    g = cadr(yArray[i] - 0.714 * (crArray[i] - 128) - 0.334 * (cbArray[i] - 128))
+    r = cadr(yArray[i] + 1.402 * (crArray[i] - 128))
+    b = cadr(yArray[i] + 1.772 * (cbArray[i] - 128))
+    sumR = sumR + (imageR[i] - int(r)) ** 2
+    sumG = sumG + (imageG[i] - int(g)) ** 2
+    sumB = sumB + (imageB[i] - int(b)) ** 2 
     yFile.append(int(b))
     yFile.append(int(g))
     yFile.append(int(r))
@@ -306,12 +300,21 @@ imageB = [round(imageB[i]) for i in range(len(imageB))]
 imageB = np.array(imageB)
 
 
+<<<<<<< HEAD
 createBarChart(yArray, "y frequency")
 createBarChart(cbArray, "cb frequency")
 createBarChart(crArray, "cr frequency")
 createBarChart(imageR, "red frequency")
 createBarChart(imageG, "green frequency")
 createBarChart(imageB, "blue frequency")
+=======
+# createBarChart(yArray, "y frequency", (0, 255))
+# createBarChart(cbArray, "cb frequency", (0, 255))
+# createBarChart(crArray, "cr frequency", (0, 255))
+# createBarChart(imageR, "red frequency", (0, 255))
+# createBarChart(imageG, "green frequency", (0, 255))
+# createBarChart(imageB, "blue frequency", (0, 255))
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
 
 Cb_restored = decimationEvenNumbered(cbArray)
 Cr_restored = decimationEvenNumbered(crArray)
@@ -351,12 +354,12 @@ imageFile.write(bytes(yFile))
 imageFile.close()
 
 print('--------------------------------------------')
-calculateEntropy(imageB, width, height, 'H(B) = ')
-calculateEntropy(imageG, width, height, 'H(G) = ')
-calculateEntropy(imageR, width, height, 'H(R) = ')
-calculateEntropy(yArray, width, height, 'H(Y) = ')
-calculateEntropy(cbArray, width, height, 'H(Cb) = ')
-calculateEntropy(crArray, width, height, 'H(Cr) = ')
+calculateEntropy(imageB, 'H(B) = ')
+calculateEntropy(imageG, 'H(G) = ')
+calculateEntropy(imageR, 'H(R) = ')
+calculateEntropy(yArray, 'H(Y) = ')
+calculateEntropy(cbArray, 'H(Cb) = ')
+calculateEntropy(crArray, 'H(Cr) = ')
 
 print('--------------------------------------------')
 calculateDifferenceModulation(imageB, width, height, 'B')
@@ -366,6 +369,7 @@ calculateDifferenceModulation(yArray, width, height, 'Y')
 calculateDifferenceModulation(cbArray, width, height, 'Cb')
 calculateDifferenceModulation(crArray, width, height, 'Cr')
 
+<<<<<<< HEAD
 yArray1 = splitIntoSubframes(yArray, 0, 0)
 yFile = createSubframes(yArray1)
 imageFile = open('y_version1.bmp', 'wb')
@@ -389,3 +393,33 @@ yFile = createSubframes(yArray4)
 imageFile = open('y_version4.bmp', 'wb')
 imageFile.write(bytes(yFile))
 imageFile.close()
+=======
+print('--------------------------------------------')
+def solveCadrs(arr, cadrIndexes, height, width):
+    height_temp  = height // 2 
+    width_temp = width // 2
+    for cadrIndex in cadrIndexes:
+        matrixList = []
+        yFile = fullImage[:pixel_offset]
+        yFile[18:22] = width_temp.to_bytes(4, 'little')
+        yFile[22:26] = height_temp.to_bytes(4, 'little')
+        for i in range(0, height, 2):
+            for j in range(0, width, 2):
+                if ((i + cadrIndex[0]) < height and (j + cadrIndex[1]) < width):
+                    i_new = i + cadrIndex[0]
+                    j_new = j + cadrIndex[1]
+                    matrixList.append(arr[width * i_new + j_new])
+                    yFile.extend(bytearray([int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new]),int(arr[width * i_new + j_new])]))
+        labelEntropy = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ') = '
+        label = 'H(Y_' + str(cadrIndex[0]) + '-' + str(cadrIndex[1]) +  ')'
+        imageFile = open(label + '.bmp', 'wb')
+        imageFile.write(bytes(yFile))
+        imageFile.close()
+        calculateEntropy(matrixList, labelEntropy)
+        createBarChart(matrixList, label, (0,255))
+
+cadrIndexes = [
+    [0,0],[0,1],[1,0],[1,1]
+]
+solveCadrs(yArray, cadrIndexes, height, width)
+>>>>>>> 14dc7a788eb74357d94f64bffa7f6a65e6c5eefb
