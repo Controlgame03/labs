@@ -16,7 +16,7 @@ def saveInFileAndGetComponents(image, filename, position, startPos, width, heigh
 
     return storeImage
 
-with open('kodim02.bmp', 'rb') as f:
+with open('kodim15.bmp', 'rb') as f:
     header = f.read(54)
     pixel_offset = int.from_bytes(header[10:14], byteorder='little')
     width = int.from_bytes(header[18:22], byteorder='little')
@@ -61,7 +61,7 @@ def calculateEntropy(arrayValues, width, height, label):
 def createBarChart(componentArray, label):
     fig = plt.figure()
     plt.title(label)
-    plt.hist(componentArray, bins=255, range=(0,255))
+    plt.hist(componentArray, bins=255, range=(-125,125))
     plt.show()
 
 def calculateDifferenceModulation(componentArray, width, height, cmplabel):
@@ -306,12 +306,12 @@ imageB = [round(imageB[i]) for i in range(len(imageB))]
 imageB = np.array(imageB)
 
 
-# createBarChart(yArray, "y frequency")
-# createBarChart(cbArray, "cb frequency")
-# createBarChart(crArray, "cr frequency")
-# createBarChart(imageR, "red frequency")
-# createBarChart(imageG, "green frequency")
-# createBarChart(imageB, "blue frequency")
+createBarChart(yArray, "y frequency")
+createBarChart(cbArray, "cb frequency")
+createBarChart(crArray, "cr frequency")
+createBarChart(imageR, "red frequency")
+createBarChart(imageG, "green frequency")
+createBarChart(imageB, "blue frequency")
 
 Cb_restored = decimationEvenNumbered(cbArray)
 Cr_restored = decimationEvenNumbered(crArray)
@@ -359,12 +359,12 @@ calculateEntropy(cbArray, width, height, 'H(Cb) = ')
 calculateEntropy(crArray, width, height, 'H(Cr) = ')
 
 print('--------------------------------------------')
-# calculateDifferenceModulation(imageB, width, height, 'B')
-# calculateDifferenceModulation(imageG, width, height, 'G')
-# calculateDifferenceModulation(imageR, width, height, 'R')
-# calculateDifferenceModulation(yArray, width, height, 'Y')
-# calculateDifferenceModulation(cbArray, width, height, 'Cb')
-# calculateDifferenceModulation(crArray, width, height, 'Cr')
+calculateDifferenceModulation(imageB, width, height, 'B')
+calculateDifferenceModulation(imageG, width, height, 'G')
+calculateDifferenceModulation(imageR, width, height, 'R')
+calculateDifferenceModulation(yArray, width, height, 'Y')
+calculateDifferenceModulation(cbArray, width, height, 'Cb')
+calculateDifferenceModulation(crArray, width, height, 'Cr')
 
 yArray1 = splitIntoSubframes(yArray, 0, 0)
 yFile = createSubframes(yArray1)
@@ -389,4 +389,3 @@ yFile = createSubframes(yArray4)
 imageFile = open('y_version4.bmp', 'wb')
 imageFile.write(bytes(yFile))
 imageFile.close()
-
