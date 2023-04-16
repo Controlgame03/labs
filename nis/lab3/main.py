@@ -2,19 +2,15 @@ import random
 import sys
 import numpy.random
 import matplotlib.pyplot as plt
-import math
 
-# еще нужно сделать:
-# 1. достроить теоретические графики надёжности с графики функц. над. для 3-ёх периодов
-# 2. достроить теоретические графики интенсивности для 3-ёх периодов
-def workable_systems(arr, time, delta=0):
+def getWorkingSystemNumber(arr, time, delta=0):
     count = 0
     for i in range(len(arr)):
         if arr[i] > time + delta:
             count += 1
     return count
 
-def printGraph(times, title, mode=1):
+def createGraphic(times, title):
     number_of_points = 100
     tm = times[len(times) - 200]
     t_step = tm / number_of_points
@@ -29,80 +25,82 @@ def printGraph(times, title, mode=1):
         arguments.append(lower_limit + i * (upper_limit - lower_limit) / number_of_points)
 
     for i in range(len(arguments)):
-        n_t = workable_systems(times, arguments[i])
-        n_t_delta = workable_systems(times, arguments[i], delta_t)
+        n_t = getWorkingSystemNumber(times, arguments[i])
+        n_t_delta = getWorkingSystemNumber(times, arguments[i], delta_t)
         values.append((n_t - n_t_delta) / (n_t * delta_t))
 
-    #грфик интенсивности
     plt.plot(arguments, values)
     plt.title(title)
-    plt.xlabel('Значения t')
-    plt.ylabel('Значения lambda(t)')
+    plt.xlabel('t')
+    plt.ylabel('lambda(t)')
     plt.show()
 
-    #график надёжности
     values = []
     for i in range(len(arguments)):
-        values.append((float)(workable_systems(times, arguments[i])/len(times)))
+        values.append((float)(getWorkingSystemNumber(times, arguments[i])/len(times)))
 
     plt.plot(arguments, values)
     plt.title(title)
-    plt.xlabel('Значения t')
-    plt.ylabel('Значения p(t)')
+    plt.xlabel('t')
+    plt.ylabel('R(t)')
     plt.show()
-def model1(n, k):
-    times1 = []
-    scale1 = []  # параметр обратный alpha
+
+def model1(k):
+    tArray = []
+    lambdaArray = [] 
     for i in range(k):
-        scale1.append(1 / random.random())
+        lambdaArray.append(random.random())
     for i in range(N):
-        times1.append(numpy.random.exponential(scale1[math.floor(random.random() * k)]))
-    times1.sort()
-    return times1
+        id = random.randint(0, k - 1)
+        tArray.append(numpy.random.exponential(1/lambdaArray[id]))
+    tArray.sort()
+    return tArray
+
 def model2(n):
-    times2 = []
-    scale2 = []  # параметр обратный alpha
+    tArray = []
+    lambdaArray = []
     for i in range(n):
-        scale2.append(1 / random.random())
+        lambdaArray.append(random.random())
 
     for i in range(N):
-        t_i = sys.maxsize  # время безотказной работы для i-ого эксперимента
+        t_i = sys.maxsize
         for i in range(n):
-            new_value = numpy.random.exponential(scale2[i])
-            # new_value = random.random() * 10
-            if new_value < t_i:
-                t_i = new_value
-        times2.append(t_i)
-    times2.sort()
-    return times2
+            tNew = numpy.random.exponential(1 / lambdaArray[i])
 
-def model3(n, mode=1):
-    times3 = []
-    scale3 = []  # параметр обратный alpha
+            if tNew < t_i:
+                t_i = tNew
+
+        tArray.append(t_i)
+    tArray.sort()
+    return tArray
+
+def model3(n):
+    tArray1 = []
+    tArray2 = []
+    lambdaArray = [] 
     for i in range(n):
-        scale3.append(1 / random.random())
+        lambdaArray.append(random.random())
 
-    if mode == 1:
-        for i in range(N):
-            t_i = 0  # время безотказной работы для i-ого эксперимента
-            for i in range(n):
-                new_value = numpy.random.exponential(scale3[i])
-                if new_value > t_i:
-                    t_i = new_value
-            times3.append(t_i)
-    else:
-        for i in range(N):
-            t_i = 0  # время безотказной работы для i-ого эксперимента
-            for i in range(n):
-                t_i += numpy.random.exponential(scale3[i])
-            times3.append(t_i)
-    times3.sort()
-    return times3
+    for i in range(N):
+        t_i_1 = 0 
+        t_i_2 = 0
+        for i in range(n):
+            new_value = numpy.random.exponential(1 / lambdaArray[i])
+            t_i_2 += numpy.random.exponential(1 / lambdaArray[i])
+            if new_value > t_i_1:
+                t_i_1 = new_value
+        tArray1.append(t_i_1)
+        tArray2.append(t_i_2)
 
-N = 10000 # количество экспериментов (>= 150)
-n = int(input('количество элементов системы (>= 1) = '))
-k = int(input('количество подмножеств системы = '))
-printGraph(model1(n, k), 'model1')
-printGraph(model2(n), 'model2')
-printGraph(model3(n, mode=1), 'model3.1')
-printGraph(model3(n, mode=2), 'model3.2')
+    tArray1.sort()
+    tArray2.sort()
+    return tArray1, tArray2
+
+N = 10000
+k = int(input('number of subsitems: '))
+createGraphic(model1(k), 'model1')
+n = int(input('number of systems: '))
+createGraphic(model2(n), 'model2')
+tArray1, tArray2 = model3(n)
+createGraphic(tArray1, 'model3.1')
+createGraphic(tArray2, 'model3.2')
