@@ -1,18 +1,18 @@
 import random
 
-p = 0.2
-wait_time = 20
+p = 0.4
+wait_time = 2
 
-n_messages = 1000
+n_messages = 10000
 
 n_retries = []
 totalTime = 0
 for i in range(n_messages):
     retries = 0
     while True:
-        totalTime += wait_time
+        totalTime += wait_time + 1
         if random.random() > p:
-            print('message #', i, ' - ', retries,  ' in time: ', totalTime)
+            # print('message #', i, ' - ', retries,  ' in time: ', totalTime)
             break
         else:
             retries += 1
@@ -21,8 +21,8 @@ for i in range(n_messages):
 
 utilization = (n_messages)/ (totalTime)
 
-print(f"Коэффициент использования канала (Теор): {utilization}")
-print(f"Коэффициент использования канала (Практ): {(1 - p)/(1 + wait_time)}")
+print(f"Коэффициент использования канала (Практ): {utilization}")
+print(f"Коэффициент использования канала (Теор): {(1 - p)/(1 + wait_time)}")
 
 print('=============================================================================')
 
@@ -38,17 +38,19 @@ def getStr(tempStr):
 successMessages = []
 totalTime = 0
 while len(successMessages) != n_messages:
-    totalTime += wait_time
+    totalTime += wait_time 
     for i in range(wait_time):
         if random.random() > p and len(successMessages) < n_messages:
             successMessages.append(0)
-            print(getStr('| message #' + str(len(successMessages))))
+            print(getStr('| message #' + str(len(successMessages)) + ' at time = ' + str(totalTime)))
         else:
-            print(getStr('| error #' + str(len(successMessages))))
+            totalTime += 1
+            print(getStr('| error #' + str(len(successMessages)) + ' at time = ' + str(totalTime) ))
             break
+    
     print(lineDivider)
 
 utilization = (n_messages)/ (totalTime)
 
-print(f"Коэффициент использования канала (Теор): {utilization}")
-print(f"Коэффициент использования канала (Практ): {(1 - p)/(1 + wait_time * p)}")
+print(f"Коэффициент использования канала (Практ): {utilization}")
+print(f"Коэффициент использования канала (Теор): {(1 - p)/(1 + wait_time * p)}")
