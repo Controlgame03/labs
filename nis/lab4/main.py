@@ -1,19 +1,39 @@
 import math
-import numpy.random
+import random
 import matplotlib.pyplot as plt
+
+def isSystemWorking(system):
+    count_parallel = 0
+    for i in parallel_elements:
+        if system[i].status == False:
+            count_parallel += 1
+    if count_parallel != 0 and count_parallel == len(parallel_elements):
+        return False
+    
+    for i in range(len(system)):
+        if system[i].status == False and i not in parallel_elements:
+            return False
+    return True
+
+class SystemElement:
+    status = True
+    recovery_id = -1
 
 N = 50000
 k = 100
 delta_t = 0.1
 time_line = []
-system_element = True
+
+system_amount = 2
+system_elements = []
+for i in range(system_amount):
+    system_elements.append(SystemElement())
+parallel_elements = [0,1]
+
+system_recoveries = [True]
+
 lambda_element = 0.8
 mu = 0.9
-
-# Не факт что эти значения нужны т к использую только для того,
-# чтобы в цикле определять в какое состояние перехрдит система
-o_to_o_probability = math.exp(-mu) # из 0 в 0
-s1_to_s1_probability = math.exp(-lambda_element) #  из 1 в 1
 
 average_time_array = [0]
 average_time_recovery_array = [0]
@@ -23,24 +43,37 @@ for i in range(k):
 
 for i in range(N):
     for t in range(k):
-        if (system_element):
-            p = numpy.random.exponential(1/lambda_element)
-            if s1_to_s1_probability > p:
-                average_time_array[-1] = average_time_array[-1] + delta_t
-                time_line[t] += 1
+        for sys_id in range(len(system_elements)):
+            if (system_elements[sys_id].status):
+                if random.random() >= math.exp(-(lambda_element * t * delta_t)):
+                    system_elements[sys_id].status = False
+                    for r in range(len(system_recoveries)):
+                        if (system_recoveries[r]):
+                            system_elements[sys_id].recovery_id =  r
+                            system_recoveries[r] = False
+                            break
             else:
-                if (average_time_recovery_array[-1] != 0):
-                    average_time_recovery_array.append(0)
-                system_element = False
+                if random.random() <= math.exp(-(mu * delta_t)) and system_elements[sys_id].recovery_id != -1:
+                    system_elements[sys_id].status = True
+                    system_recoveries[system_elements[sys_id].recovery_id] = True
+                    system_elements[sys_id].recovery_id = -1
+                elif system_elements[sys_id].recovery_id == -1:
+                    for r in range(len(system_recoveries)):
+                        if (system_recoveries[r]):
+                            system_elements[sys_id].recovery_id =  r
+                            system_recoveries[r] = False
+                            break
+        
+        if (isSystemWorking(system_elements)):
+            if (average_time_recovery_array[-1] != 0):
+                average_time_recovery_array.append(0)
+            average_time_array[-1] = average_time_array[-1] + delta_t
+            time_line[t] += 1
         else:
-            p = numpy.random.exponential(1/mu)
-            if o_to_o_probability <= p:
-                if (average_time_array[-1] != 0):
+            if (average_time_array[-1] != 0):
                     average_time_array.append(0)
-                system_element = True
-                time_line[t] += 1
-            else:
-                average_time_recovery_array[-1] = average_time_recovery_array[-1] + delta_t
+            average_time_recovery_array[-1] = average_time_recovery_array[-1] + delta_t
+    
 
 average_time = sum(average_time_array) / len(average_time_array)
 average_time_recovery = sum(average_time_recovery_array) / len(average_time_recovery_array)
