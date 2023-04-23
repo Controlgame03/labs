@@ -30,8 +30,11 @@ for i in range(system_amount):
     system_elements.append(SystemElement())
 parallel_elements = [0,1]
 
-system_recoveries = [True]
+recovery_amount = 1
+system_recoveries = []
 
+for i in range(recovery_amount):
+    system_recoveries.append(True)
 lambda_element = 0.8
 mu = 0.9
 

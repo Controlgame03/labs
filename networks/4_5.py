@@ -1,4 +1,5 @@
 import random
+import matplotlib.pyplot as plt
 
 p = 0.4
 wait_time = 2
@@ -37,20 +38,31 @@ def getStr(tempStr):
 
 successMessages = []
 totalTime = 0
+allT = {}
+
 while len(successMessages) != n_messages:
     totalTime += wait_time 
     for i in range(wait_time):
         if random.random() > p and len(successMessages) < n_messages:
             successMessages.append(0)
-            print(getStr('| message #' + str(len(successMessages)) + ' at time = ' + str(totalTime)))
+            # print(getStr('| message #' + str(len(successMessages)) + ' at time = ' + str(totalTime)))
         else:
+            id = len(successMessages)
+            allT[id] = 1 if id not in allT else allT[id] + 1
             totalTime += 1
-            print(getStr('| error #' + str(len(successMessages)) + ' at time = ' + str(totalTime) ))
+            # print(getStr('| error #' + str(len(successMessages)) + ' at time = ' + str(totalTime) ))
             break
     
-    print(lineDivider)
+    # print(lineDivider)
 
 utilization = (n_messages)/ (totalTime)
 
 print(f"Коэффициент использования канала (Практ): {utilization}")
 print(f"Коэффициент использования канала (Теор): {(1 - p)/(1 + wait_time * p)}")
+
+
+plt.plot(allT.keys(), allT.values())
+plt.title('Количество ошибок от номера сообщения')
+plt.xlabel('сообщение')
+plt.ylabel('ошибки')
+plt.show()
