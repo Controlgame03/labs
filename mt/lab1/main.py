@@ -17,7 +17,7 @@ def saveInFileAndGetComponents(image, filename, position, startPos, width, heigh
     return storeImage
 
 
-with open('mt\lab1\kodim02.bmp', 'rb') as f:
+with open('kodim15.bmp', 'rb') as f:
     header = f.read(54)
     pixel_offset = int.from_bytes(header[10:14], byteorder='little')
     width = int.from_bytes(header[18:22], byteorder='little')
@@ -81,10 +81,10 @@ def calculateDifferenceModulation(componentArray, width, height, cmplabel):
             average = (componentArray[i * width + j - 1] + componentArray[(i - 1) * width + j] + componentArray[(i - 1) * width + j - 1]) / 3
             diffModulation4.append(componentArray[i * width + j] - average)
 
-    # createBarChart(diffModulation1, "diff " + cmplabel + " frequency 1", (-127, 128))
-    # createBarChart(diffModulation2, "diff " + cmplabel + " frequency 2", (-127, 128))
-    # createBarChart(diffModulation3, "diff " + cmplabel + " frequency 3", (-127, 128))
-    # createBarChart(diffModulation4, "diff " + cmplabel + " frequency 4", (-127, 128))
+    #createBarChart(diffModulation1, "diff " + cmplabel + " frequency 1", (-127, 128))
+    #createBarChart(diffModulation2, "diff " + cmplabel + " frequency 2", (-127, 128))
+    #createBarChart(diffModulation3, "diff " + cmplabel + " frequency 3", (-127, 128))
+    #createBarChart(diffModulation4, "diff " + cmplabel + " frequency 4", (-127, 128))
 
     calculateEntropy(diffModulation1, 'H(d' + cmplabel + '^1) = ')
     calculateEntropy(diffModulation2, 'H(d' + cmplabel + '^2) = ')
@@ -294,12 +294,12 @@ imageB = np.array(imageB)
 
 
 
-# createBarChart(yArray, "y frequency", (0, 255))
-# createBarChart(cbArray, "cb frequency", (0, 255))
-# createBarChart(crArray, "cr frequency", (0, 255))
-# createBarChart(imageR, "red frequency", (0, 255))
-# createBarChart(imageG, "green frequency", (0, 255))
-# createBarChart(imageB, "blue frequency", (0, 255))
+createBarChart(yArray, "y frequency", (0, 255))
+createBarChart(cbArray, "cb frequency", (0, 255))
+createBarChart(crArray, "cr frequency", (0, 255))
+createBarChart(imageR, "red frequency", (0, 255))
+createBarChart(imageG, "green frequency", (0, 255))
+createBarChart(imageB, "blue frequency", (0, 255))
 
 
 Cb_restored = decimationEvenNumbered(cbArray)
