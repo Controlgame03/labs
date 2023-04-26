@@ -3,9 +3,8 @@ import numpy.random
 import matplotlib.pyplot as plt
 import math
 
-
 pArray = [0.2, 0.8]
-lambdaArray = [0.2, 1.4] 
+lambdaArray = [1.2, 1.4] 
 
 def getWorkingSystemNumber(arr, time, delta=0):
     count = 0
@@ -37,7 +36,7 @@ def getTheoryLambdaResults(arguments, mode):
             result = sum(lambdaArray)
         elif mode == 3:
             temp1 = 1 - (1 - math.exp(-lambdaArray[0] * i)) * (1 - math.exp(-lambdaArray[1] * i))
-            temp2 = -(-lambdaArray[0] * math.exp(-lambdaArray[0] * i) - lambdaArray[1] * math.exp(-lambdaArray[1] * i) + (lambdaArray[0] + lambdaArray[1]) * math.exp(-(lambdaArray[0] + lambdaArray[1]) * i))
+            temp2 = lambdaArray[0] * math.exp(-lambdaArray[0] * i) + lambdaArray[1] * math.exp(-lambdaArray[1] * i) - (lambdaArray[0] + lambdaArray[1]) * math.exp(-(lambdaArray[0] + lambdaArray[1]) * i)
             result = temp2 / temp1
         values.append(result)
     return values
@@ -114,7 +113,6 @@ def model2():
 
 def model3():
     tArray1 = []
-    tArray2 = []
 
     for i in range(N):
         t_i_1 = 0 
@@ -125,15 +123,13 @@ def model3():
             if new_value > t_i_1:
                 t_i_1 = new_value
         tArray1.append(t_i_1)
-        tArray2.append(t_i_2)
 
     tArray1.sort()
-    tArray2.sort()
-    return tArray1, tArray2
+
+    return tArray1
 
 N = 10000
 createGraphic(model1(), 'model1', 1)
 createGraphic(model2(), 'model2', 2)
-tArray1, tArray2 = model3()
-createGraphic(tArray1, 'model3.1', 3)
-createGraphic(tArray2, 'model3.2', 3)
+tArray1 = model3()
+createGraphic(tArray1, 'model3', 3)
