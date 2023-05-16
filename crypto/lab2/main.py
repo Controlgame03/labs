@@ -1,11 +1,23 @@
 user_roles = {
-    'admin': ['admin'],
-    'manager': ['manager'],
-    'user1': ['user'],
-    'user2': ['user'],
+    'mark': ['admin'],
+    'anton': ['manager'],
+    'kostya': ['guest'],
+    'denis': ['user'],
+    'egor': ['user'],
+    'misha': ['admin'],
+    'petya': ['manager'],
+    'vasya': ['guest'],
+    'oleg': ['user'],
+    'kirill': ['user'],
+    'irina': ['admin'],
+    'masha': ['manager'],
+    'arina': ['guest'],
+    'valya': ['user'],
+    'natalya': ['user'],
 }
 
 resource_roles = {
+    'super_user': ['admin'],
     'add_user': ['admin', 'manager'],
     'delete_user': ['admin', 'manager'],
     'edit_user': ['admin', 'manager'],
@@ -25,4 +37,18 @@ def check_access(user, resource):
                 return True
     return False
 
-print(check_access('user1', 'create_resource'))
+#print(resource_roles)
+print(user_roles.keys())
+print('Welcome!!!')
+print('what is your name? ----> ', end=' ')
+name = input()
+
+print('what do you want to do? ')
+print(resource_roles.keys())
+print('action ----> ', end=' ')
+action = input()
+
+if check_access(name, action):
+    print('fine. you did it')
+else:
+    print('sorry, but we cannot grant you the right for this action. check the correctness of the data')
