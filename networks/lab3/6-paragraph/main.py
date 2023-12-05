@@ -17,8 +17,12 @@ curLambda = 0.1
 
 arguments = []
 values = []
+values.append(0)
 
 averageMessages = []
+output_mus = []
+averageMessages.append(0)
+output_mus.append(0)
 
 for _ in range(9):
     store = []
@@ -34,8 +38,8 @@ for _ in range(9):
 
         sendersAmount = generate_poisson(curLambda)
 
-        # tempMes = [random.random() for _ in range(sendersAmount)] #sync
-        tempMes = [0 for _ in range(sendersAmount)] #async
+        tempMes = [random.random() for _ in range(sendersAmount)] #sync
+        #tempMes = [0 for _ in range(sendersAmount)] #async
 
         messages = messages + tempMes
         valuesMessages.append(len(messages))
@@ -50,6 +54,7 @@ for _ in range(9):
         totalMes = totalMes + i
     
     averageMessages.append(totalMes / len(valuesMessages))
+    output_mus.append(len(store) / requestAmount)
     values.append((total) / len(store))
     curLambda = curLambda + 0.1
 
@@ -60,22 +65,26 @@ for p in arguments:
     n = ( (2 - p)) / (2 * (1 - p)) #async
     valuesTheory.append(n)
     
-plt.plot(arguments, values, label='Синхронная (практ)')
-plt.plot(arguments, valuesTheory, label='Синхронная (теор)')
-plt.legend()
-plt.title('Средняя задержка')
-plt.xlabel('lambda')
-plt.ylabel('d(lambda)')
-plt.show()
+print("average_delays_md1 = ", values)
+print("average_subscribers_md1 = ", averageMessages)
+print("output_mus_md1 = ", output_mus)
 
-valuesTheory= []
-for p in arguments:
-    n = ( (2 - p) * p) / (2 * (1 - p))
-    valuesTheory.append(n)
-plt.plot(arguments, averageMessages, label='практ')
-plt.plot(arguments, valuesTheory, label='теор')
-plt.legend()
-plt.title('Среднее количество пользователей')
-plt.xlabel('lambda')
-plt.ylabel('N')
-plt.show()
+# plt.plot(arguments, values, label='Синхронная (практ)')
+# plt.plot(arguments, valuesTheory, label='Синхронная (теор)')
+# plt.legend()
+# plt.title('Средняя задержка')
+# plt.xlabel('lambda')
+# plt.ylabel('d(lambda)')
+# plt.show()
+#
+# valuesTheory= []
+# for p in arguments:
+#     n = ( (2 - p) * p) / (2 * (1 - p))
+#     valuesTheory.append(n)
+# plt.plot(arguments, averageMessages, label='практ')
+# plt.plot(arguments, valuesTheory, label='теор')
+# plt.legend()
+# plt.title('Среднее количество пользователей')
+# plt.xlabel('lambda')
+# plt.ylabel('N')
+# plt.show()
