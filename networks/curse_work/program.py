@@ -4,18 +4,21 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-window_quantity = 10000 # количество окон
-input_lambda = 0.0 # не менять. начальная лямда
+window_quantity = 1000000 # максимальное количество окон
+total_time = 10000 # время работы системы
+input_lambda = 0.0 # начальная лямда
 # probability = 0.5
 M = 2 # количество пользователей
 w_min = 2 # минимальная ширина окна
 w_max = 128 #максимальная ширина окна
 queue_size = None # можно поставить численное значение
-precision = 10 # точность построения графиков
+precision = 25 # точность построения графиков
 
-success_delay = 1
-conf_delay = 0.3
-empt_delay = 0.3
+success_delay = 1.0
+conf_delay = 2.0
+empt_delay = 0.5
+
+p = 1 / M
 
 
 def poisson_stream(input_lambda): # сколько сообщений появилось в новом окне
@@ -26,6 +29,7 @@ def poisson_stream(input_lambda): # сколько сообщений появи
         messages_count += 1
         exp += math.exp(-input_lambda) * (input_lambda**messages_count) / math.factorial(messages_count)
     return messages_count
+
     
 def message_will_be_sent_interval(current_window, stats):
     if stats['window_number'] == current_window or stats['window_number'] == 0:
@@ -33,8 +37,6 @@ def message_will_be_sent_interval(current_window, stats):
     return False
 
 def model(subscriber_quantity, input_lambda, queue_size, conflict_delay, empty_delay):
-    if input_lambda == 0.8:
-        pass
     subscribers_delay = [] # хранятся сообщения, которые в очереди 
     send_messages = [] # хранятся задержки отправленных сообщений
     subscriber_stats = [] # хранится ширина окна и номер выбранного окна абонента
@@ -47,7 +49,12 @@ def model(subscriber_quantity, input_lambda, queue_size, conflict_delay, empty_d
     
     wishing_send_amount = [] # хранится количество пользователей, захотевших отправить сообщение в текущем окне
 
+
     for current_window in range(window_quantity):
+        if total_delay > total_time:
+            # print(total_delay) 
+            # print(current_window)
+            break
         current_queue = [] # номера пользователей, захотевших отправить сообщение
 
         message_amount.append(0)
@@ -138,6 +145,7 @@ output_mus_basic = []
 total_delays_basic = []
 input_lambda = 0
 
+
 for _ in range(int(1.0 * precision)):
     result = model(M, input_lambda, queue_size, 1, 1)
     average_delays_basic.append(result[0])
@@ -171,12 +179,4 @@ plt.legend()
 plt.title('Интенсивность выходного потока. ' + info)
 plt.xlabel('lambda')
 plt.ylabel('mu')
-plt.show()
-
-plt.plot(arguments, total_delays, label='УДЭО')
-plt.plot(arguments, total_delays_basic, label='ДЭО')
-plt.legend()
-plt.title('Общее время работы канала. ' + info)
-plt.xlabel('lambda')
-plt.ylabel('time')
 plt.show()
