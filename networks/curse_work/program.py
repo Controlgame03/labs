@@ -4,7 +4,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-window_quantity = 1000000 # максимальное количество окон
+window_quantity = 10000000 # максимальное количество окон
 total_time = 10000 # время работы системы
 input_lambda = 0.0 # начальная лямда
 # probability = 0.5
@@ -12,7 +12,7 @@ M = 2 # количество пользователей
 w_min = 2 # минимальная ширина окна
 w_max = 128 #максимальная ширина окна
 queue_size = None # можно поставить численное значение
-precision = 25 # точность построения графиков
+precision = 10 # точность построения графиков
 
 success_delay = 1.0
 conf_delay = 2.0

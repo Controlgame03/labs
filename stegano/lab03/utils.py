@@ -2,16 +2,17 @@ import math
 import random
 
 BLOCK_SIZE = 8
-WEIGHT_COEF = 1.5
+WEIGHT_COEF = 0.9
+
 CHANGED_COEF_NUMBER = 2
-COUNER_GAP = 16
-ENCODED_IMAGE = 'lab03/logs/after.bmp'
-ORIGIN_IMAGE = 'lab03/kodim02.bmp'
-TEXT_FILE = 'lab03/text.txt'
-JPEG_OUTPUT_FILE = 'lab03/logs/file.jpg'
-CONVERTED_BMP_FROM_JPEG_FILE = 'lab03/logs/from_jpeg.bmp'
-BINARY_ENCODED = 'lab03/logs/encode.txt'
-BINARY_DECODED = 'lab03/logs/decode.txt'
+COUNER_GAP = 16 
+ENCODED_IMAGE = 'after.bmp'
+ORIGIN_IMAGE = 'kodim15.bmp'
+TEXT_FILE = 'secret.txt'
+JPEG_OUTPUT_FILE = 'logs/file.jpg'
+CONVERTED_BMP_FROM_JPEG_FILE = 'logs/from_jpeg.bmp'
+BINARY_ENCODED = 'logs/encode.txt'
+BINARY_DECODED = 'logs/decode.txt'
 
 def getBmpValues(filename):
     with open(filename, 'rb') as f:
@@ -93,5 +94,7 @@ def PSNR(originFilename, encodedFilename):
         sumB = sumB + (originFile[blueId] - encodedFile[blueId]) ** 2 
    
     print('psnr(blue) = ', 10 * math.log10((originWidth  * originHeight * (255 ** 2)) / sumB))
-    print('psnr(green) = ', 10 * math.log10((originWidth  * originHeight * (255 ** 2)) / sumG))
-    print('psnr(red) = ', 10 * math.log10((originWidth  * originHeight * (255 ** 2)) / sumR))
+    # print('psnr(green) = ', 10 * math.log10((originWidth  * originHeight * (255 ** 2)) / sumG))
+    # print('psnr(red) = ', 10 * math.log10((originWidth  * originHeight * (255 ** 2)) / sumR))
+    # print('psnr(green) = ', sumG)
+    # print('psnr(red) = ', sumR)

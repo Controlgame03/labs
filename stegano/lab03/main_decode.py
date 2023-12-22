@@ -1,7 +1,7 @@
 from utils import *
 import sys
 
-encodedImageName = ENCODED_IMAGE if sys.argv[1] == '0' else CONVERTED_BMP_FROM_JPEG_FILE
+encodedImageName = ENCODED_IMAGE
 
 encodedFile, encodedWidth, encodedHeight, encodedOffset = getBmpValues(encodedImageName)
 originFile, originWidth, originHeight, originOffset = getBmpValues(ORIGIN_IMAGE)
@@ -18,15 +18,11 @@ encodedBits = COUNER_GAP
 encodedText = ''
 encodedCounter = ''
 textPos = 0
-if sys.argv[2] == '0':
-    print()
+
 for i in range(0, encodedHeight - BLOCK_SIZE + 1, BLOCK_SIZE):
     if (textPos >= encodedBits):
         break
     for j in range(0, encodedWidth - BLOCK_SIZE + 1, BLOCK_SIZE):
-        if sys.argv[2] == '0':
-            moveCursor(0,2)
-            print('Progress: ', textPos)
         originImageBlock = []
         encodedImageBlock = []
 
@@ -71,8 +67,9 @@ for i in range(0, encodedHeight - BLOCK_SIZE + 1, BLOCK_SIZE):
         else:
             break
 
-if sys.argv[2] == '1':
-    print(encodedText)
+encodedFile = open(BINARY_DECODED, 'w')
+encodedFile.write(encodedText)
+encodedFile.close()
 result = ""
 byteLength = 8
 encodedText = encodedText[COUNER_GAP:]
@@ -80,5 +77,4 @@ for i in range(len(encodedText) // byteLength):
    start = i * byteLength
    end = start + byteLength
    result += chr(int(encodedText[start : end], 2))
-if sys.argv[2] == '0':
-    print(result)
+print(result)

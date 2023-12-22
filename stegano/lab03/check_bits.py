@@ -8,7 +8,7 @@ encoded = decodedFile.readline().strip()
 
 count = 0
 
-logFile = open('lab03/logs/difference.txt', 'w')
+logFile = open('logs/difference.txt', 'w')
 
 for i in range(min(len(origin), len(encoded))):
     if origin[i] != encoded[i]:

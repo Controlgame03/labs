@@ -3,6 +3,8 @@ import sys
 
 originFile, originWidth, originHeight, originOffset = getBmpValues(ORIGIN_IMAGE)
 
+blockCount = (originHeight * originWidth) // BLOCK_SIZE ** 2
+
 imageComponentMatrix = [] 
 greenComponentMatrix = [] 
 redComponentMatrix = [] 
@@ -17,21 +19,24 @@ encodedImageBody = bytearray(originFile[:originOffset])
 tempStore = [0 for _ in range(originWidth * originHeight)]
 
 encodedText = readBinary(TEXT_FILE)
-if sys.argv[1] == '1':
-    print(encodedText)
+
+if len(encodedText) > blockCount:
+    print("secret size is greater than the number of blocks")
+    sys.exit()
+
 countBinFormat = f'{len(encodedText):016b}'
+
 encodedText = countBinFormat + encodedText
 
 amountPos = 0
 textPos = 0
-if sys.argv[1] == '0':
-    print()
+c = 0
+
 for i in range(0, originHeight - BLOCK_SIZE + 1, BLOCK_SIZE):
     for j in range(0, originWidth - BLOCK_SIZE + 1, BLOCK_SIZE):
+        
+        
         imageBlock = []
-        if sys.argv[1] == '0':
-            moveCursor(0,2)
-            print('Progress: ', textPos)
         for v in range(BLOCK_SIZE):
             row = []
             for u in range(BLOCK_SIZE):
@@ -65,13 +70,15 @@ for i in range(0, originHeight - BLOCK_SIZE + 1, BLOCK_SIZE):
             textPos += 1
 
         idct_result = idct(dct_result)
-
+        
         for v2 in range(BLOCK_SIZE):
             for u2 in range(BLOCK_SIZE):
                 tempStore[j + u2 + (i + v2) * originWidth] = cadr(idct_result[v2][u2])
 
-if sys.argv[1] == '1':
-    print(encodedText)
+encodedFile = open(BINARY_ENCODED, 'w')
+encodedFile.write(encodedText)
+encodedFile.close()
+
 for i in range(len(tempStore)):
     encodedImageBody.extend(bytearray([tempStore[i], greenComponentMatrix[i], redComponentMatrix[i]]))
 

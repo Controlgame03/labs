@@ -18,4 +18,4 @@ def convert_jpeg_to_bmp(input_path, output_path):
         print(f"Error: {e}")
 
 convert_bmp_to_jpeg(ENCODED_IMAGE, JPEG_OUTPUT_FILE)
-convert_jpeg_to_bmp(JPEG_OUTPUT_FILE, CONVERTED_BMP_FROM_JPEG_FILE)
+convert_jpeg_to_bmp(JPEG_OUTPUT_FILE, ENCODED_IMAGE)
