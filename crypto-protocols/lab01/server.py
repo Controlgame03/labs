@@ -70,7 +70,7 @@ def handleClient(conn):
 def server_program():
     host = socket.gethostname()
     print('Host`s name: ', host)
-    port = 5000
+    port = 5001
     server_socket = socket.socket()
     server_socket.bind((host, port))
     server_socket.listen(CLIENT_AMOUNT)
